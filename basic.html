@@ -6,14 +6,18 @@
   <body>
     <canvas id="display"></canvas>
     <script>
-      window.addEventListener("click", (event) => {
-        console.log(event.clientX, event.clientY);
-      });
-
       const canvas = document.getElementById("display");
 
       // TODO: OpenGL driver interface
       const gl = canvas.getContext("webgl");
+
+      window.addEventListener("click", (event) => {
+        console.log(event.clientX, event.clientY);
+        console.log(gl.getParameter(gl.VIEWPORT));
+      });
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
 
       function createShader(gl, type, source) {
         var shader = gl.createShader(type);
