@@ -28,7 +28,9 @@
         0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
       ]);
 
-      var pointColor = new Float32Array([1.0, 1.0, 0.0, 1.0]);
+      var pointColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+
+      const distance = 1;
 
       function createShader(gl, type, source) {
         var shader = gl.createShader(type);
@@ -201,6 +203,23 @@
 
       window.addEventListener("click", (event) => {
         if (event.clientX > 1000 || event.clientY > 1000) return;
+
+        const x = (event.clientX / cW) * 2 - 1;
+        const y = -(event.clientY / cH) * 2 + 1;
+
+        const rayPositions = new Float32Array([x, y, distance, 0, 0, 0]);
+        const rayColors = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1]);
+
+        const insideRayPositions = new Float32Array([
+          0,
+          0,
+          0,
+          -x,
+          -y,
+          -distance,
+        ]);
+        const insideRayColors = new Float32Array([1, 1, 1, 1, 1, 1, 1, 1]);
+
         render(
           gl,
           program,
@@ -212,17 +231,26 @@
         render(
           gl,
           program,
-          createBuffers(
-            gl,
-            new Float32Array([
-              (event.clientX / cW) * 2 - 1,
-              -(event.clientY / cH) * 2 + 1,
-              0,
-            ]),
-          ),
+          createBuffers(gl, new Float32Array([0, 0, 0])),
           pointColorBuffer,
           gl.POINTS,
           1,
+        );
+        render(
+          gl,
+          program,
+          createBuffers(gl, rayPositions),
+          createBuffers(gl, rayColors),
+          gl.LINES,
+          2,
+        );
+        render(
+          gl,
+          program,
+          createBuffers(gl, insideRayPositions),
+          createBuffers(gl, insideRayColors),
+          gl.LINES,
+          2,
         );
       });
     </script>
