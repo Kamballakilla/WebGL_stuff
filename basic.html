@@ -7,6 +7,25 @@
     <canvas id="display"></canvas>
     <script>
       const canvas = document.getElementById("display");
+      canvas.width = 1000;
+      canvas.height = 1000;
+
+
+
+      var positions = [
+        -1, -1, 0, 1, -1, 0, 1, 1, 0, 1, 1, 0, -1, 1, 0, -1, -1, 0,
+      ];
+
+      var point = [0, 0, 0];
+
+
+
+
+
+
+
+
+      
 
       // TODO: OpenGL driver interface
       const gl = canvas.getContext("webgl2");
@@ -15,9 +34,6 @@
         console.log(event.clientX, event.clientY);
         console.log(gl.getParameter(gl.VIEWPORT));
       });
-
-      canvas.width = 1000;
-      canvas.height = 1000;
 
       function createShader(gl, type, source) {
         var shader = gl.createShader(type);
@@ -41,11 +57,12 @@
         gl.VERTEX_SHADER,
 
         `  
-            attribute vec4 a_position;
-            
-            void main() {
-                gl_Position = vec4(a_position.x,a_position.y,a_position.z, 1.0 + a_position.z) ;
-            }
+          attribute vec4 a_position;
+          
+          void main() {
+            gl_Position = vec4(a_position.x,a_position.y,a_position.z, 1.0 + a_position.z) ;
+            gl_PointSize = 10.0;
+          }
         `,
       );
 
@@ -54,12 +71,12 @@
         gl.FRAGMENT_SHADER,
 
         `
-            precision mediump float; 
-            uniform float u_time;
- 
-            void main() {
-                gl_FragColor = vec4(0, 0, gl_FragCoord.z, 1); // return reddish-purple
-            }
+          precision mediump float; 
+          uniform float u_time;
+   
+          void main() {
+            gl_FragColor = vec4(1.0, 0, 0, 1);
+          }
         `,
       );
 
@@ -80,13 +97,9 @@
 
       const program = createProgram(gl, vertexShader, fragmentShader);
 
-      function createBuffers(gl) {
+      function createBuffers(gl, positions) {
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-        var positions = [
-          -1, -1, 0, 1, -1, 0, 1, 1, 0, 1, 1, 0, -1, 1, 0, -1, -1, 0,
-        ];
 
         gl.bufferData(
           gl.ARRAY_BUFFER,
@@ -97,13 +110,7 @@
         return positionBuffer;
       }
 
-      function render(gl, program, positionBuffer) {
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        gl.clearColor(1, 1, 1, 1);
-
-        // only color
-        gl.clear(gl.COLOR_BUFFER_BIT);
-
+      function render(gl, program, positionBuffer, primitiveType) {
         // color and z-buffer (побитовые операции)
         // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -133,17 +140,24 @@
           offset,
         );
 
-        var primitiveType = gl.TRIANGLES;
+        var primitiveType = primitiveType;
         var offset = 0;
         var count = 6;
         gl.drawArrays(primitiveType, offset, count);
       }
 
-      const positionBuffer = createBuffers(gl);
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      gl.clearColor(1, 1, 1, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
 
-      render(gl, program, positionBuffer);
+      const positionBuffer = createBuffers(gl, positions);
+      const pointBuffer = createBuffers(gl, point);
 
-      const timeLocation = gl.getUniformLocation(program,'u_time');
+      render(gl, program, positionBuffer, gl.TRIANGLES);
+      // render(gl, program, pointBuffer, gl.POINTS);
+
+      const timeLocation = gl.getUniformLocation(program, "u_time");
+
 
       const loop = () => {
         const time = performance.now() / 1000;
@@ -154,6 +168,14 @@
       };
 
       loop();
+
+      
+      window.addEventListener("click", (event) => {
+        console.log(event.clientX, event.clientY);
+        console.log(gl.getParameter(gl.VIEWPORT));
+        render(gl, program, pointBuffer, gl.POINTS);
+        
+      });
     </script>
   </body>
 </html>
