@@ -201,14 +201,6 @@
 
       window.addEventListener("click", (event) => {
         if (event.clientX > 1000 || event.clientY > 1000) return;
-
-        var pointPosition = new Float32Array([
-          (event.clientX / cW) * 2 - 1,
-          -(event.clientY / cH) * 2 + 1,
-          0,
-        ]);
-        const pointPositionBuffer = createBuffers(gl, pointPosition);
-
         render(
           gl,
           program,
@@ -220,7 +212,14 @@
         render(
           gl,
           program,
-          pointPositionBuffer,
+          createBuffers(
+            gl,
+            new Float32Array([
+              (event.clientX / cW) * 2 - 1,
+              -(event.clientY / cH) * 2 + 1,
+              0,
+            ]),
+          ),
           pointColorBuffer,
           gl.POINTS,
           1,
