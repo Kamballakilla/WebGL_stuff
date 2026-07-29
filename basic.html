@@ -23,7 +23,10 @@
         -1, -1, 0, 1, -1, 0, 1, 1, 0, 1, 1, 0, -1, 1, 0, -1, -1, 0,
       ];
 
-      var obsCameraColor = [1.0, 1.0, 0, 1.0];
+      var obsCameraColor = [1.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0
+      ];
 
       var pointPosition = [0, 0, 0];
 
@@ -52,10 +55,13 @@
 
         `  
           attribute vec4 a_position;
+          attribute vec4 a_color;
+          varying vec4 v_color;
           
           void main() {
             gl_Position = vec4(a_position.x,a_position.y,a_position.z, 1.0 + a_position.z) ;
             gl_PointSize = 10.0;
+            v_color = a_color;
           }
         `,
       );
@@ -102,7 +108,7 @@
         return someBuffer;
       }
 
-      function render(gl, program, positionBuffer,  primitiveType) {
+      function render(gl, program, positionBuffer, colorBuffer, primitiveType) {
         // color and z-buffer (побитовые операции)
         // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -132,25 +138,25 @@
           offset,
         );
 
-        // const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
+        const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
 
-        // gl.enableVertexAttribArray(colorAttributeLocation);
+        gl.enableVertexAttribArray(colorAttributeLocation);
 
-        // gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 
-        // var size = 3;
-        // var type = gl.FLOAT;
-        // var normalize = false;
-        // var stride = 0;
-        // var offset = 0;
-        // gl.vertexAttribPointer(
-        //   colorAttributeLocation,
-        //   size,
-        //   type,
-        //   normalize,
-        //   stride,
-        //   offset,
-        // );
+        var size = 4;
+        var type = gl.FLOAT;
+        var normalize = false;
+        var stride = 0;
+        var offset = 0;
+        gl.vertexAttribPointer(
+          colorAttributeLocation,
+          size,
+          type,
+          normalize,
+          stride,
+          offset,
+        );
 
         var primitiveType = primitiveType;
         var offset = 0;
@@ -164,9 +170,13 @@
 
       const pointPositionBuffer = createBuffers(gl, pointPosition);
 
-  
-
-      render(gl, program, obsCameraPositionBuffer, gl.TRIANGLES);
+      render(
+        gl,
+        program,
+        obsCameraPositionBuffer,
+        obsCameraColorBuffer,
+        gl.TRIANGLES,
+      );
       // render(gl, program, pointBuffer, gl.POINTS);
 
       const timeLocation = gl.getUniformLocation(program, "u_time");
@@ -184,7 +194,7 @@
       window.addEventListener("click", (event) => {
         console.log(event.clientX, event.clientY);
         console.log(gl.getParameter(gl.VIEWPORT));
-        render(gl, program, pointPositionBuffer, gl.POINTS);
+        // render(gl, program, pointPositionBuffer, gl.POINTS);
       });
     </script>
   </body>
