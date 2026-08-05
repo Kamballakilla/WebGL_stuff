@@ -68,7 +68,7 @@
           varying vec4 v_color;
    
           void main() {
-            gl_FragColor = v_color;
+            gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
           }
         `,
       );
@@ -105,7 +105,7 @@
         gl,
         program,
         positionBuffer,
-        colorBuffer,
+        // colorBuffer,
         primitiveType,
         vertexCount,
       ) {
@@ -115,7 +115,7 @@
         gl.useProgram(program);
 
         attributeInit("a_position", program, positionBuffer, 3);
-        attributeInit("a_color", program, colorBuffer, 4);
+        // attributeInit("a_color", program, colorBuffer, 4);
 
         var primitiveType = primitiveType;
         var offset = 0;
@@ -150,7 +150,6 @@
         );
       }
 
-
       // TODO: Изучить все функции
       function _argumentsToArray(args) {
         return [].concat.apply([], Array.prototype.slice.apply(args));
@@ -169,6 +168,55 @@
         }
 
         return result.splice(0, 3);
+      }
+
+      function transpose(m) {
+        if (!m.matrix) {
+          return "transpose(): trying to transpose a non-matrix";
+        }
+
+        var result = [];
+        for (var i = 0; i < m.length; ++i) {
+          result.push([]);
+          for (var j = 0; j < m[i].length; ++j) {
+            result[i].push(m[j][i]);
+          }
+        }
+
+        result.matrix = true;
+
+        return result;
+      }
+
+      function flatten(v) {
+        if (v.matrix === true) {
+          v = transpose(v);
+        }
+
+        var n = v.length;
+        var elemsAreArrays = false;
+
+        if (Array.isArray(v[0])) {
+          elemsAreArrays = true;
+          n *= v[0].length;
+        }
+
+        var floats = new Float32Array(n);
+
+        if (elemsAreArrays) {
+          var idx = 0;
+          for (var i = 0; i < v.length; ++i) {
+            for (var j = 0; j < v[i].length; ++j) {
+              floats[idx++] = v[i][j];
+            }
+          }
+        } else {
+          for (var i = 0; i < v.length; ++i) {
+            floats[i] = v[i];
+          }
+        }
+
+        return floats;
       }
 
       function add(u, v) {
@@ -239,10 +287,13 @@
         points.push(p);
       }
 
-      points.forEach((el) => {
-        const pointBuffer = createBuffers(gl, el);
-        render(gl, program, pointBuffer, tColorBuffer, gl.POINTS, 1);
-      });
+      const pointBuffer = createBuffers(gl, flatten(points));
+      render(gl, program, pointBuffer, gl.POINTS, points.length);
+
+      // points.forEach((el) => {
+      //   const pointBuffer = createBuffers(gl, el);
+      //   render(gl, program, pointBuffer, tColorBuffer, gl.POINTS, 3);
+      // });
     </script>
   </body>
 </html>
