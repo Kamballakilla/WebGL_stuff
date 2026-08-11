@@ -4,33 +4,27 @@
   </head>
 
   <body>
-    <canvas id="display"></canvas>
+    <canvas id="display" width="1000" height="1000"></canvas>
     <script>
       const canvas = document.getElementById("display");
       const gl = canvas.getContext("webgl2");
-
-      const cW = 1000;
-      const cH = 1000;
-
-      canvas.width = cW;
-      canvas.height = cH;
 
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       gl.clearColor(1, 1, 1, 1);
       gl.clear(gl.COLOR_BUFFER_BIT);
 
-      var obsCameraPositions = new Float32Array([
-        -1, -1, 0, 1, -1, 0, 1, 1, 0, 1, 1, 0, -1, 1, 0, -1, -1, 0,
-      ]);
-
-      var obsCameraColor = new Float32Array([
-        1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0,
-        0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
-      ]);
-
-      var pointColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-
-      const distance = 1;
+      const distance = 3;
+      const far = 1000;
+      var obsCameraPositions = [-1, 1, 0, -1, -1, 0, 1, 1, 0, 1, -1, 0];
+      var obsCameraColor = [
+        0.7, 0.9, 1.0, 0.8, 0.7, 0.9, 1.0, 0.8, 0.7, 0.9, 1.0, 0.8, 0.7, 0.9,
+        1.0, 0.8,
+      ];
+      var pointColor = [1.0, 1.0, 1.0, 1.0];
+      var insideRayColor = [0.8, 0.8, 0.8, 1.0, 0.8, 0.8, 0.8, 1.0];
+      var rayColor = [0, 0, 0, 1, 0, 0, 0, 1];
+      var rayPosition = [0, 0, distance, 0, 0, 0];
+      var insideRayPosition = [0, 0, 0, -0, -0, -distance];
 
       function createShader(gl, type, source) {
         var shader = gl.createShader(type);
@@ -54,15 +48,25 @@
         gl.VERTEX_SHADER,
 
         `  
-          attribute vec4 a_position;
-          attribute vec4 a_color;
-          varying vec4 v_color;
-          uniform float u_time;
-          
-          void main() {
-            gl_Position = vec4(a_position.x,a_position.y,a_position.z, 1.0 + a_position.z) ;
-            gl_PointSize = 10.0;
-            v_color = a_color;
+        attribute vec3 a_position;
+        attribute vec4 a_color;
+
+        varying vec4 v_color;
+
+        void main() {
+          float w = a_position.z == 0.0
+            ? 1.0
+            : abs(a_position.z);
+
+          gl_Position = vec4(
+            a_position.x,
+            a_position.y,
+            a_position.z,
+            w
+          );
+
+          gl_PointSize = 10.0;
+          v_color = a_color;
           }
         `,
       );
@@ -73,7 +77,6 @@
 
         `
           precision mediump float; 
-          uniform float u_time;
           varying vec4 v_color;
    
           void main() {
@@ -97,17 +100,36 @@
         gl.deleteProgram(program);
       }
 
-      function createBuffers(gl, buffer) {
+      function createBuffers(gl, buffer, drawingType = gl.STATIC_DRAW) {
         const someBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, someBuffer);
 
-        gl.bufferData(
-          gl.ARRAY_BUFFER,
-          new Float32Array(buffer),
-          gl.STATIC_DRAW,
-        );
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(buffer), drawingType);
 
         return someBuffer;
+      }
+
+      function initBuffes(name, bufferData, bufferSize) {
+        const attributeLocation = gl.getAttribLocation(program, name);
+        // TODO: Прочитать
+        gl.enableVertexAttribArray(attributeLocation);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufferData);
+
+        // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+        var size = bufferSize; // 2 components per iteration
+        var type = gl.FLOAT; // the data is 32bit floats
+        var normalize = false; // don't normalize the data
+        var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+        var offset = 0; // start at the beginning of the buffer
+        gl.vertexAttribPointer(
+          attributeLocation,
+          size,
+          type,
+          normalize,
+          stride,
+          offset,
+        );
       }
 
       function render(
@@ -118,54 +140,10 @@
         primitiveType,
         vertexCount,
       ) {
-        // color and z-buffer (побитовые операции)
-        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
         gl.useProgram(program);
 
-        const positionAttributeLocation = gl.getAttribLocation(
-          program,
-          "a_position",
-        );
-        // TODO: Прочитать
-        gl.enableVertexAttribArray(positionAttributeLocation);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-        // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-        var size = 3; // 2 components per iteration
-        var type = gl.FLOAT; // the data is 32bit floats
-        var normalize = false; // don't normalize the data
-        var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-        var offset = 0; // start at the beginning of the buffer
-        gl.vertexAttribPointer(
-          positionAttributeLocation,
-          size,
-          type,
-          normalize,
-          stride,
-          offset,
-        );
-
-        const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
-
-        gl.enableVertexAttribArray(colorAttributeLocation);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-
-        var size = 4;
-        var type = gl.FLOAT;
-        var normalize = false;
-        var stride = 0;
-        var offset = 0;
-        gl.vertexAttribPointer(
-          colorAttributeLocation,
-          size,
-          type,
-          normalize,
-          stride,
-          offset,
-        );
+        initBuffes("a_position", positionBuffer, 3);
+        initBuffes("a_color", colorBuffer, 4);
 
         var primitiveType = primitiveType;
         var offset = 0;
@@ -175,80 +153,86 @@
 
       const program = createProgram(gl, vertexShader, fragmentShader);
 
+      const rayColorBuffer = createBuffers(gl, rayColor);
+      const insideRayColorBuffer = createBuffers(gl, insideRayColor);
+      const pointPositionBuffer = createBuffers(gl, [0, 0, 0]);
+      const pointColorBuffer = createBuffers(gl, pointColor);
       const obsCameraPositionBuffer = createBuffers(gl, obsCameraPositions);
       const obsCameraColorBuffer = createBuffers(gl, obsCameraColor);
-
-      const pointColorBuffer = createBuffers(gl, pointColor);
+      const rayPositionBuffer = createBuffers(gl, rayPosition, gl.DYNAMIC_DRAW);
+      const insideRayPositionBuffer = createBuffers(
+        gl,
+        insideRayPosition,
+        gl.DYNAMIC_DRAW,
+      );
 
       render(
         gl,
         program,
         obsCameraPositionBuffer,
         obsCameraColorBuffer,
-        gl.TRIANGLES,
-        6,
+        // TRIANGLE_STRIP делает новый треугольник с двумя предыдущими вершинами
+        gl.TRIANGLE_STRIP,
+        4,
       );
 
-      const timeLocation = gl.getUniformLocation(program, "u_time");
+      function refreshBufferData(buffer, bufferData) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(
+          gl.ARRAY_BUFFER,
+          new Float32Array(bufferData),
+          gl.DYNAMIC_DRAW,
+        );
+      }
 
-      const loop = () => {
-        const time = performance.now() / 1000;
+      canvas.addEventListener("click", (event) => {
+        const {
+          x: canvasX,
+          y: canvasY,
+          width: canvasWidth,
+          height: canvasHeight,
+        } = canvas.getBoundingClientRect();
 
-        gl.uniform1f(timeLocation, time);
+        const x = ((event.clientX - canvasX) / canvasWidth) * 2 - 1;
+        const y = -((event.clientY - canvasY) / canvasHeight) * 2 + 1;
 
-        requestAnimationFrame(loop);
-      };
+        rayPosition = [far * x, far * y, far, 0, 0, 0];
+        refreshBufferData(rayPositionBuffer, rayPosition);
 
-      loop();
-
-      window.addEventListener("click", (event) => {
-        if (event.clientX > 1000 || event.clientY > 1000) return;
-
-        const x = (event.clientX / cW) * 2 - 1;
-        const y = -(event.clientY / cH) * 2 + 1;
-
-        const rayPositions = new Float32Array([x, y, distance, 0, 0, 0]);
-        const rayColors = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1]);
-
-        const insideRayPositions = new Float32Array([
+        insideRayPosition = [
           0,
           0,
           0,
-          -x,
-          -y,
+          -(x * distance),
+          -(y * distance),
           -distance,
-        ]);
-        const insideRayColors = new Float32Array([1, 1, 1, 1, 1, 1, 1, 1]);
+        ];
+        refreshBufferData(insideRayPositionBuffer, insideRayPosition);
+
+        gl.clear(gl.COLOR_BUFFER_BIT);
 
         render(
           gl,
           program,
           obsCameraPositionBuffer,
           obsCameraColorBuffer,
-          gl.TRIANGLES,
-          6,
+          gl.TRIANGLE_STRIP,
+          4,
         );
         render(
           gl,
           program,
-          createBuffers(gl, new Float32Array([0, 0, 0])),
+          pointPositionBuffer,
           pointColorBuffer,
           gl.POINTS,
           1,
         );
+        render(gl, program, rayPositionBuffer, rayColorBuffer, gl.LINES, 2);
         render(
           gl,
           program,
-          createBuffers(gl, rayPositions),
-          createBuffers(gl, rayColors),
-          gl.LINES,
-          2,
-        );
-        render(
-          gl,
-          program,
-          createBuffers(gl, insideRayPositions),
-          createBuffers(gl, insideRayColors),
+          insideRayPositionBuffer,
+          insideRayColorBuffer,
           gl.LINES,
           2,
         );
