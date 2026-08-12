@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Kaleidoscope</title>
+  </head>
+  <body>
+    <canvas id="canvas"> </canvas>
+    <script>
+      const canvas = document.getElementById("canvas");
+      const gl = canvas.getContext("webgl2");
+      if (!gl) {
+        throw new Error("WebGL не поддерживается браузером");
+      }
+    </script>
+  </body>
+</html>
