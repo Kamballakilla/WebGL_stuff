@@ -102,7 +102,7 @@
 
       render(gl, program, positionBuffer, gl.TRIANGLES, 3, 0, 0, 500, 500);
 
-      reflect(data, positionBuffer);
+      reflect(data, positionBuffer, 0);
 
       gl.viewport(500, 0, 500, 500);
       gl.scissor(500, 0, 500, 500);
@@ -112,6 +112,8 @@
 
       render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
 
+      reflect(data, positionBuffer, 1);
+
       gl.viewport(0, 500, 500, 500);
       gl.scissor(0, 500, 500, 500);
 
@@ -119,6 +121,8 @@
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
+
+      reflect(data, positionBuffer, 2);
 
       gl.viewport(500, 500, 500, 500);
       gl.scissor(500, 500, 500, 500);
@@ -128,9 +132,9 @@
 
       render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
 
-      function reflect(data, dataBuffer) {
+      function reflect(data, dataBuffer, reflectDiretion) {
         const reflectedData = data.map((el, index) => {
-          if (index % 3 === 0) {
+          if (index % 3 === reflectDiretion) {
             return -1 * el;
           }
           return el;
