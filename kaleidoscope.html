@@ -12,7 +12,7 @@
         throw new Error("WebGL не поддерживается браузером");
       }
 
-      const data = [-1, 0.5, 0.0, -1, -0.5, 0.0, 0, -0.5, 0.0];
+      const data = [-0.7, 0.6, 0.0, 0.8, 0.3, 0.0, 0.2, -0.8, 0.0];
 
       const vertexShaderCode = `
         attribute vec3 aPosition;
@@ -24,7 +24,7 @@
       const fragmentShaderCode = `
         void main(){
             precision mediump float; 
-            gl_FragColor = vec4(1.0,1.0,0.0,1.0);
+            gl_FragColor = vec4(0.15, 0.85, 0.65, 1.0);
         }
       `;
 
@@ -81,18 +81,7 @@
         gl.vertexAttribPointer(attributeLocation, size, gl.FLOAT, false, 0, 0);
       }
 
-      function render(
-        gl,
-        program,
-        positionBuffer,
-        primitiveType,
-        vertexCount,
-        viewPortX,
-        viewPortY,
-        width,
-        height,
-      ) {
-        gl.viewport(viewPortX, viewPortY, width, height);
+      function render(gl, program, positionBuffer, primitiveType, vertexCount) {
         gl.useProgram(program);
         initBuffers("aPosition", positionBuffer, 3, program);
 
@@ -103,16 +92,57 @@
         gl.drawArrays(primitiveType, offset, count);
       }
 
-      gl.clearColor(0.5, 0.3, 0.8, 1.0);
+      gl.enable(gl.SCISSOR_TEST);
+
+      gl.viewport(0, 0, 500, 500);
+      gl.scissor(0, 0, 500, 500);
+
+      gl.clearColor(0.55, 0.35, 0.9, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       render(gl, program, positionBuffer, gl.TRIANGLES, 3, 0, 0, 500, 500);
 
-      const newData = [1, 0.5, 0.0, 1, -0.5, 0.0, 0, -0.5, 0.0];
-      gl.bindBuffer(gl, positionBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newData), gl.STATIC_DRAW);
+      reflect(data, positionBuffer);
+
+      gl.viewport(500, 0, 500, 500);
+      gl.scissor(500, 0, 500, 500);
+
+      gl.clearColor(0.95, 0.45, 0.35, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
 
       render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
+
+      gl.viewport(0, 500, 500, 500);
+      gl.scissor(0, 500, 500, 500);
+
+      gl.clearColor(0.55, 0.95, 0.15, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
+
+      gl.viewport(500, 500, 500, 500);
+      gl.scissor(500, 500, 500, 500);
+
+      gl.clearColor(0.15, 0.65, 0.45, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
+
+      function reflect(data, dataBuffer) {
+        const reflectedData = data.map((el, index) => {
+          if (index % 3 === 0) {
+            return -1 * el;
+          }
+          return el;
+        });
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, dataBuffer);
+        gl.bufferData(
+          gl.ARRAY_BUFFER,
+          new Float32Array(reflectedData),
+          gl.STATIC_DRAW,
+        );
+      }
     </script>
   </body>
 </html>
