@@ -122,44 +122,29 @@
         program,
         "uTriangleCenter",
       );
+      gl.uniform3f(uTriangleCenterLocation, ...triangleCenter);
+      gl.enable(gl.SCISSOR_TEST);
 
       const loop = () => {
         const time = performance.now() / 1000;
         gl.uniform1f(uTimeLocation, time);
-        gl.uniform3f(uTriangleCenterLocation, ...triangleCenter);
 
-        // Вынести
-        gl.enable(gl.SCISSOR_TEST);
-        gl.viewport(0, 0, 500, 500);
-        gl.scissor(0, 0, 500, 500);
-        gl.clearColor(0.55, 0.35, 0.9, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.uniform2f(scaleLocation, 1, 1);
-        render(gl, program, positionBuffer, gl.TRIANGLES, 3);
-
-        gl.viewport(500, 0, 500, 500);
-        gl.scissor(500, 0, 500, 500);
-        gl.clearColor(0.95, 0.45, 0.35, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.uniform2f(scaleLocation, -1, 1);
-        render(gl, program, positionBuffer, gl.TRIANGLES, 3);
-
-        gl.viewport(0, 500, 500, 500);
-        gl.scissor(0, 500, 500, 500);
-        gl.clearColor(0.55, 0.95, 0.15, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.uniform2f(scaleLocation, 1, -1);
-        render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
-
-        gl.viewport(500, 500, 500, 500);
-        gl.scissor(500, 500, 500, 500);
-        gl.clearColor(0.15, 0.65, 0.45, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.uniform2f(scaleLocation, -1, -1);
-        render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
-
+        drawQuadrant([0, 0, 500, 500], [0.55, 0.35, 0.9, 1.0], [1, 1]);
+        drawQuadrant([500, 0, 500, 500], [0.95, 0.45, 0.35, 1.0], [-1, 1]);
+        drawQuadrant([0, 500, 500, 500], [0.55, 0.95, 0.15, 1.0], [1, -1]);
+        drawQuadrant([500, 500, 500, 500], [0.15, 0.65, 0.45, 1.0], [-1, -1]);
+        
         requestAnimationFrame(loop);
       };
+
+      function drawQuadrant(viewport, color, scaleFactor) {
+        gl.viewport(...viewport);
+        gl.scissor(...viewport);
+        gl.clearColor(...color);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(scaleLocation, ...scaleFactor);
+        render(gl, program, positionBuffer, gl.TRIANGLES, 3);
+      }
 
       loop();
     </script>
