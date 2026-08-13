@@ -19,6 +19,7 @@
         uniform vec2 uScaleFactor;
         uniform float uTime;
         void main(){
+
           vec3 newPosition = vec3(aPosition.x * uScaleFactor.x, aPosition.y * uScaleFactor.y, aPosition.z);
 
           gl_Position = vec4(newPosition,1.0);
@@ -97,45 +98,41 @@
       }
 
       const scaleLocation = gl.getUniformLocation(program, "uScaleFactor");
-
-      gl.enable(gl.SCISSOR_TEST);
-      gl.viewport(0, 0, 500, 500);
-      gl.scissor(0, 0, 500, 500);
-      gl.clearColor(0.55, 0.35, 0.9, 1.0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      gl.uniform2f(scaleLocation, 1, 1);
-      render(gl, program, positionBuffer, gl.TRIANGLES, 3);
-
-      gl.viewport(500, 0, 500, 500);
-      gl.scissor(500, 0, 500, 500);
-      gl.clearColor(0.95, 0.45, 0.35, 1.0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      gl.uniform2f(scaleLocation, -1, 1);
-      render(gl, program, positionBuffer, gl.TRIANGLES, 3);
-
-      gl.viewport(0, 500, 500, 500);
-      gl.scissor(0, 500, 500, 500);
-      gl.clearColor(0.55, 0.95, 0.15, 1.0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      gl.uniform2f(scaleLocation, 1, -1);
-      render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
-
-      gl.viewport(500, 500, 500, 500);
-      gl.scissor(500, 500, 500, 500);
-      gl.clearColor(0.15, 0.65, 0.45, 1.0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      gl.uniform2f(scaleLocation, -1, -1);
-      render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
-
       const uTimeLocation = gl.getUniformLocation(program, "uTime");
 
       const loop = () => {
-        const time = performance.now / 1000;
+        const time = performance.now() / 1000;
         gl.uniform1f(uTimeLocation, time);
+
+        // Вынести 
+        gl.enable(gl.SCISSOR_TEST);
+        gl.viewport(0, 0, 500, 500);
+        gl.scissor(0, 0, 500, 500);
+        gl.clearColor(0.55, 0.35, 0.9, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(scaleLocation, 1, 1);
+        render(gl, program, positionBuffer, gl.TRIANGLES, 3);
+
+        gl.viewport(500, 0, 500, 500);
+        gl.scissor(500, 0, 500, 500);
+        gl.clearColor(0.95, 0.45, 0.35, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(scaleLocation, -1, 1);
+        render(gl, program, positionBuffer, gl.TRIANGLES, 3);
+
+        gl.viewport(0, 500, 500, 500);
+        gl.scissor(0, 500, 500, 500);
+        gl.clearColor(0.55, 0.95, 0.15, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(scaleLocation, 1, -1);
+        render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
+
+        gl.viewport(500, 500, 500, 500);
+        gl.scissor(500, 500, 500, 500);
+        gl.clearColor(0.15, 0.65, 0.45, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(scaleLocation, -1, -1);
+        render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
 
         requestAnimationFrame(loop);
       };
