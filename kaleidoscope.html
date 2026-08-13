@@ -13,16 +13,29 @@
       }
 
       const data = [-0.7, 0.6, 0.0, 0.8, 0.3, 0.0, 0.2, -0.8, 0.0];
+      const triangleCenter = [
+        (data[0] + data[3] + data[6]) / 3,
+        (data[1] + data[4] + data[7]) / 3,
+        (data[2] + data[5] + data[8]) / 3,
+      ];
 
       const vertexShaderCode = `
         attribute vec3 aPosition;
         uniform vec2 uScaleFactor;
+        uniform vec3 uTriangleCenter;
         uniform float uTime;
+
         void main(){
-
           vec3 newPosition = vec3(aPosition.x * uScaleFactor.x, aPosition.y * uScaleFactor.y, aPosition.z);
+          vec3 newCenter = vec3(uTriangleCenter.x * uScaleFactor.x, uTriangleCenter.y * uScaleFactor.y, uTriangleCenter.z);
+          vec3 localPosition = newPosition - newCenter;
 
-          gl_Position = vec4(newPosition,1.0);
+          float rotatedX = localPosition.x * cos(uTime) - localPosition.y * sin(uTime);
+          float rotatedY = localPosition.x * sin(uTime) + localPosition.y * cos(uTime);
+
+          vec3 finalPosition = vec3(rotatedX + newCenter.x, rotatedY + newCenter.y, aPosition.z);
+
+          gl_Position = vec4(finalPosition,1.0);
         }
       `;
 
@@ -99,12 +112,17 @@
 
       const scaleLocation = gl.getUniformLocation(program, "uScaleFactor");
       const uTimeLocation = gl.getUniformLocation(program, "uTime");
+      const uTriangleCenterLocation = gl.getUniformLocation(
+        program,
+        "uTriangleCenter",
+      );
 
       const loop = () => {
         const time = performance.now() / 1000;
         gl.uniform1f(uTimeLocation, time);
+        gl.uniform3f(uTriangleCenterLocation, ...triangleCenter);
 
-        // Вынести 
+        // Вынести
         gl.enable(gl.SCISSOR_TEST);
         gl.viewport(0, 0, 500, 500);
         gl.scissor(0, 0, 500, 500);
