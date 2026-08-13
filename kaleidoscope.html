@@ -17,6 +17,7 @@
       const vertexShaderCode = `
         attribute vec3 aPosition;
         uniform vec2 uScaleFactor;
+        uniform float uTime;
         void main(){
           vec3 newPosition = vec3(aPosition.x * uScaleFactor.x, aPosition.y * uScaleFactor.y, aPosition.z);
 
@@ -95,7 +96,6 @@
         gl.drawArrays(primitiveType, offset, count);
       }
 
-      
       const scaleLocation = gl.getUniformLocation(program, "uScaleFactor");
 
       gl.enable(gl.SCISSOR_TEST);
@@ -130,6 +130,17 @@
 
       gl.uniform2f(scaleLocation, -1, -1);
       render(gl, program, positionBuffer, gl.TRIANGLES, 3, 500, 0, 500, 500);
+
+      const uTimeLocation = gl.getUniformLocation(program, "uTime");
+
+      const loop = () => {
+        const time = performance.now / 1000;
+        gl.uniform1f(uTimeLocation, time);
+
+        requestAnimationFrame(loop);
+      };
+
+      loop();
     </script>
   </body>
 </html>
