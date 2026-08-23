@@ -8,11 +8,18 @@
     <script>
       const canvas = document.getElementById("canvas");
       const gl = canvas.getContext("webgl2");
+      const triangleQuantity = 270;
       if (!gl) {
         throw new Error("WebGL не поддерживается браузером");
       }
 
-      const data = [-0.45, 0.38, 0.0, 0.5, 0.2, 0.0, 0.15, -0.48, 0.0];
+      let data = [];
+
+      for (let i = 0; i < triangleQuantity; i++) {
+        // разобрать
+        data.push(Math.random() * (1 - (-1)) + (-1));
+      }
+
       const triangleCenter = [
         (data[0] + data[3] + data[6]) / 3,
         (data[1] + data[4] + data[7]) / 3,
@@ -25,6 +32,7 @@
         uniform vec2 uScaleFactor;
         uniform vec3 uTriangleCenter;
         uniform float uTime;
+        varying vec3 uPosition;
 
         void main(){
           vec3 newPosition = vec3(aPosition.x * uScaleFactor.x, aPosition.y * uScaleFactor.y, aPosition.z);
@@ -36,6 +44,8 @@
 
           vec3 finalPosition = vec3(rotatedX + newCenter.x, rotatedY + newCenter.y, aPosition.z);
 
+          uPosition = finalPosition;
+
           gl_Position = vec4(finalPosition,1.0);
         }
       `;
@@ -43,12 +53,13 @@
       const fragmentShaderCode = `
         precision mediump float; 
         uniform float uTime;
+        varying vec3 uPosition;
 
         void main(){
-          float r = sin(uTime) * 0.5 + 0.5;
-          float g = sin(uTime + 2.0) * 0.5 + 0.5;
-          float b = sin(uTime + 4.0) * 0.5 + 0.5;
-          gl_FragColor = vec4(r, g, b, 1.0);
+          // float r = sin(uTime) * 0.5 + 0.5;
+          // float g = sin(uTime + 2.0) * 0.5 + 0.5;
+          // float b = sin(uTime + 4.0) * 0.5 + 0.5;
+          gl_FragColor = vec4(uPosition, 1.0);
         }
       `;
 
@@ -133,7 +144,7 @@
         drawQuadrant([500, 0, 500, 500], [0.95, 0.45, 0.35, 1.0], [-1, 1]);
         drawQuadrant([0, 500, 500, 500], [0.55, 0.95, 0.15, 1.0], [1, -1]);
         drawQuadrant([500, 500, 500, 500], [0.15, 0.65, 0.45, 1.0], [-1, -1]);
-        
+
         requestAnimationFrame(loop);
       };
 
@@ -143,7 +154,7 @@
         gl.clearColor(...color);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.uniform2f(scaleLocation, ...scaleFactor);
-        render(gl, program, positionBuffer, gl.TRIANGLES, 3);
+        render(gl, program, positionBuffer, gl.TRIANGLES, data.length);
       }
 
       loop();
