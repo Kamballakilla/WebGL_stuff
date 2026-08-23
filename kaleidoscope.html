@@ -16,7 +16,6 @@
       let data = [];
 
       for (let i = 0; i < triangleQuantity; i++) {
-        // разобрать
         data.push(Math.random() * (1 - (-1)) + (-1));
       }
 
@@ -32,34 +31,46 @@
         uniform vec2 uScaleFactor;
         uniform vec3 uTriangleCenter;
         uniform float uTime;
-        varying vec3 uPosition;
+        varying vec3 vColor;
 
         void main(){
           vec3 newPosition = vec3(aPosition.x * uScaleFactor.x, aPosition.y * uScaleFactor.y, aPosition.z);
           vec3 newCenter = vec3(uTriangleCenter.x * uScaleFactor.x, uTriangleCenter.y * uScaleFactor.y, uTriangleCenter.z);
           vec3 localPosition = newPosition - newCenter;
 
-          float rotatedX = localPosition.x * cos(uTime) - localPosition.y * sin(uTime);
-          float rotatedY = localPosition.x * sin(uTime) + localPosition.y * cos(uTime);
+          // под анимацию 
+          // float rotatedX = localPosition.x * cos(uTime) - localPosition.y * sin(uTime);
+          // float rotatedY = localPosition.x * sin(uTime) + localPosition.y * cos(uTime);
+          // vec3 finalPosition = vec3(rotatedX + newCenter.x, rotatedY + newCenter.y, aPosition.z);
 
-          vec3 finalPosition = vec3(rotatedX + newCenter.x, rotatedY + newCenter.y, aPosition.z);
+          gl_Position = vec4(localPosition,1.0);
 
-          uPosition = finalPosition;
+          float value = sin(
+            aPosition.x * 12.3 +
+            aPosition.y * 7.7
+          ) * 0.5 + 0.5;
 
-          gl_Position = vec4(finalPosition,1.0);
+          if (value < 0.2) {
+            vColor = vec3(0.05, 0.15, 0.9);
+          } else if (value < 0.4) {
+            vColor = vec3(0.8, 0.05, 0.4);
+          } else if (value < 0.6) {
+            vColor = vec3(0.05, 0.8, 0.7);
+          } else if (value < 0.8) {
+            vColor = vec3(0.9, 0.5, 0.05);
+          } else {
+            vColor = vec3(0.4, 0.1, 0.9);
+          }
         }
       `;
 
       const fragmentShaderCode = `
         precision mediump float; 
         uniform float uTime;
-        varying vec3 uPosition;
+        varying vec3 vColor;
 
         void main(){
-          // float r = sin(uTime) * 0.5 + 0.5;
-          // float g = sin(uTime + 2.0) * 0.5 + 0.5;
-          // float b = sin(uTime + 4.0) * 0.5 + 0.5;
-          gl_FragColor = vec4(uPosition, 1.0);
+          gl_FragColor = vec4(vColor, 1.0);
         }
       `;
 
@@ -135,6 +146,7 @@
       );
       gl.uniform3f(uTriangleCenterLocation, ...triangleCenter);
       gl.enable(gl.SCISSOR_TEST);
+      gl.enable(gl.DEPTH_TEST);
 
       const loop = () => {
         const time = performance.now() / 1000;
