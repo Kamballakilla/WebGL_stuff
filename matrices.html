@@ -24,10 +24,12 @@
 
           vec3 position2D = vec3(aPosition.xy, 1.0);
 
+          // mat3(...) заполняется по столбцам
+
           mat3 scaleMatrix = mat3(
-            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0, 
             0.0, 1.0, 0.0,
-            0.0, 0.0, 1.0
+            0.2, 0.3, 1.0
           );
 
           vec3 scaledPosition = scaleMatrix * position2D;
