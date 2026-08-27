@@ -21,20 +21,40 @@
 
         void main(){
 
-
+          // mat3(...) заполняется по столбцам
           vec3 position2D = vec3(aPosition.xy, 1.0);
 
-          // mat3(...) заполняется по столбцам
+          float sx = 1.0;
+          float sy = 1.0;
 
           mat3 scaleMatrix = mat3(
-            1.0, 0.0, 0.0, 
-            0.0, 1.0, 0.0,
-            0.2, 0.3, 1.0
+            sx,  0.0, 0.0,
+            0.0, sy,  0.0,
+            0.0, 0.0, 1.0
           );
 
-          vec3 scaledPosition = scaleMatrix * position2D;
+          float angle =  3.14159265 / 4.0;
+          float c = cos(angle);
+          float s = sin(angle);
 
-          gl_Position = vec4(scaledPosition.xy, 0.0, 1.0);
+          mat3 rotationMatrix = mat3(
+            c,  s, 0.0,
+            -s,  c, 0.0,
+            0.0, 0.0, 1.0
+          );
+          
+          float tx = 0.0;
+          float ty = 0.0;
+
+          mat3 translationMatrix = mat3(
+            1.0, 0.0, 0.0,
+            0.0, 1.0, 0.0,
+            tx,  ty,  1.0
+          );
+
+          vec3 transformedPosition = translationMatrix * rotationMatrix * scaleMatrix * position2D;
+
+          gl_Position = vec4(transformedPosition.xy, 0.0, 1.0);
           gl_PointSize = 10.0;
         }
       `;
