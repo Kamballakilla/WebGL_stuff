@@ -58,10 +58,11 @@
         attribute vec3 aPosition;
         attribute vec3 aNormal;
 
-        void main(){
+        varying vec3 vNormal;
 
-          // mat3(...) заполняется по столбцам
+        void main(){
           vec4 position3D = vec4(aPosition, 1.0);
+          vec4 normal = vec4(aNormal, 0.0);
 
           float sx = 1.0;
           float sy = 1.0;
@@ -99,12 +100,15 @@
           );
 
           vec4 transformedPosition = translationMatrix * rotationMatrix * scaleMatrix * position3D;
+          vec4 rotatedNormal = rotationMatrix * normal;
+          vNormal = rotatedNormal.xyz;
           gl_Position = transformedPosition;
         }
       `;
 
       const fragmentShaderCode = `
         precision mediump float;
+        varying vec3 vNormal;
 
         void main(){
             gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
