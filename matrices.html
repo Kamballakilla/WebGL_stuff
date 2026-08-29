@@ -56,6 +56,7 @@
 
       const vertexShaderCode = `
         attribute vec3 aPosition;
+        attribute vec3 aNormal;
 
         void main(){
 
@@ -160,6 +161,7 @@
       }
 
       const positionBuffer = createBuffer(gl, data);
+      const normalBuffer = createBuffer(gl, normals);
 
       function initBuffers(gl, name, buffer, size, program) {
         const attributeLocation = gl.getAttribLocation(program, name);
@@ -168,11 +170,12 @@
         gl.vertexAttribPointer(attributeLocation, size, gl.FLOAT, false, 0, 0);
       }
 
-      function render(gl, program, positionBuffer, primitiveType) {
+      function render(gl, program, positionBuffer,normalBuffer, primitiveType) {
         gl.clearColor(0.55, 0.35, 0.9, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         initBuffers(gl, "aPosition", positionBuffer, 3, program);
+        initBuffers(gl, "aNormal", normalBuffer, 3, program);
 
         gl.drawArrays(primitiveType, 0, 4);
         gl.drawArrays(primitiveType, 4, 4);
@@ -183,7 +186,7 @@
       }
 
       gl.enable(gl.DEPTH_TEST);
-      render(gl, program, positionBuffer, gl.TRIANGLE_STRIP);
+      render(gl, program, positionBuffer, normalBuffer, gl.TRIANGLE_STRIP);
     </script>
   </body>
 </html>
