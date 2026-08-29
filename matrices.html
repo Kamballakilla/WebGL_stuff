@@ -14,7 +14,25 @@
         throw new Error("WebGL не поддерживается браузером");
       }
 
-      let data = [0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.5, 0.5, 0];
+      let data = [
+        // Front
+        0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5,
+
+        // Back
+        0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5,
+
+        // Left
+        -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5,
+
+        // Right
+        0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5,
+
+        // Top
+        0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5,
+
+        // Bottom
+        0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5,
+      ];
 
       const vertexShaderCode = `
         attribute vec3 aPosition;
@@ -22,40 +40,45 @@
         void main(){
 
           // mat3(...) заполняется по столбцам
-          vec3 position2D = vec3(aPosition.xy, 1.0);
+          vec4 position3D = vec4(aPosition, 1.0);
 
           float sx = 1.0;
           float sy = 1.0;
+          float sz = 1.0;
 
-          mat3 scaleMatrix = mat3(
-            sx,  0.0, 0.0,
-            0.0, sy,  0.0,
-            0.0, 0.0, 1.0
+          mat4 scaleMatrix = mat4(
+            sx,  0.0, 0.0, 0.0,
+            0.0, sy,  0.0, 0.0,
+            0.0, 0.0, sz, 0.0,
+            0.0, 0.0, 0.0, 1.0
           );
 
-          float angle =  3.14159265 / 4.0;
+          // float angle =  3.14159265 / 4.0;
+          float angle = 0.0;
           float c = cos(angle);
           float s = sin(angle);
 
-          mat3 rotationMatrix = mat3(
-            c,  s, 0.0,
-            -s,  c, 0.0,
-            0.0, 0.0, 1.0
+          // Вращение вокруг оси Y
+          mat4 rotationMatrix = mat4(
+            c,   0.0,  s,   0.0,
+            0.0, 1.0,  0.0, 0.0,
+            -s,   0.0,  c,   0.0,
+            0.0, 0.0,  0.0, 1.0
           );
           
           float tx = 0.0;
           float ty = 0.0;
+          float tz = 0.0;
 
-          mat3 translationMatrix = mat3(
-            1.0, 0.0, 0.0,
-            0.0, 1.0, 0.0,
-            tx,  ty,  1.0
+          mat4 translationMatrix = mat4(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            tx,  ty,  tz,  1.0
           );
 
-          vec3 transformedPosition = translationMatrix * rotationMatrix * scaleMatrix * position2D;
-
-          gl_Position = vec4(transformedPosition.xy, 0.0, 1.0);
-          gl_PointSize = 10.0;
+          vec4 transformedPosition = translationMatrix * rotationMatrix * scaleMatrix * position3D;
+          gl_Position = transformedPosition;
         }
       `;
 
@@ -125,17 +148,18 @@
         gl.vertexAttribPointer(attributeLocation, size, gl.FLOAT, false, 0, 0);
       }
 
-      function render(gl, program, positionBuffer, primitiveType, vertexCount) {
+      function render(gl, program, positionBuffer, primitiveType) {
         initBuffers(gl, "aPosition", positionBuffer, 3, program);
 
-        var primitiveType = primitiveType;
-        var count = vertexCount;
-        var offset = 0;
-
-        gl.drawArrays(primitiveType, offset, count);
+        gl.drawArrays(primitiveType, 0, 4);
+        gl.drawArrays(primitiveType, 4, 4);
+        gl.drawArrays(primitiveType, 8, 4);
+        gl.drawArrays(primitiveType, 12, 4);
+        gl.drawArrays(primitiveType, 16, 4);
+        gl.drawArrays(primitiveType, 20, 4);
       }
 
-      render(gl, program, positionBuffer, gl.TRIANGLE_STRIP, 4);
+      render(gl, program, positionBuffer, gl.TRIANGLE_STRIP);
     </script>
   </body>
 </html>
