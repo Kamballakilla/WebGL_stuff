@@ -16,7 +16,7 @@
         <canvas id="canvas" width="1000" height="1000"> </canvas>
         <div class="settings">
           <label for="color">Выбор цвета фона</label>
-          <input type="color" id="color" value="#ffffff"/>
+          <input type="color" id="color" value="#c7c7c7"/>
         </div>
       </div>
     </main>
@@ -35,7 +35,7 @@
         throw new Error("WebGL не поддерживается браузером");
       }
 
-      let rgbColor = [1.0, 1.0, 1.0, 1.0];
+      let rgbColor = [0.7, 0.7, 0.7, 1.0];
 
       const inputColor = document.getElementById("color");
       inputColor.addEventListener("input", (event) => {
