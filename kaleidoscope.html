@@ -1,10 +1,30 @@
 <!doctype html>
-<html>
+<html lang="ru">
   <head>
-    <title>Kaleidoscope</title>
+    <title>Generative Playground</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
-    <canvas id="canvas" width="1000" height="1000"> </canvas>
+    <header>
+      <h1>Generative Playground</h1>
+      <p>Генерация случайной геометрии</p>
+    </header>
+    <main>
+      <div class="settings">
+        <label for="color">Выбор цвета фона</label>
+        <input type="color" id="color" />
+      </div>
+      <canvas id="canvas" width="1000" height="1000"> </canvas>
+    </main>
+    <section>
+      <h2>Как это работает</h2>
+      <p>Модель калейдоскопа</p>
+    </section>
+    <footer>
+      <h3>Максим</h3>
+      <a href="https://github.com/Kamballakilla">Мой GitHub</a>
+    </footer>
     <script>
       const canvas = document.getElementById("canvas");
       const gl = canvas.getContext("webgl2");
@@ -16,7 +36,7 @@
       let data = [];
 
       for (let i = 0; i < triangleQuantity; i++) {
-        data.push(Math.random() * (1 - (-1)) + (-1));
+        data.push(Math.random() * (1 - -1) + -1);
       }
 
       const triangleCenter = [
@@ -166,7 +186,7 @@
         gl.clearColor(...color);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.uniform2f(scaleLocation, ...scaleFactor);
-        render(gl, program, positionBuffer, gl.TRIANGLES, data.length);
+        render(gl, program, positionBuffer, gl.TRIANGLES, data.length / 3);
       }
 
       loop();
