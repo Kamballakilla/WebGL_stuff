@@ -4,24 +4,27 @@
     <title>Generative Playground</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css"/>
   </head>
   <body>
-    <header>
+    <header class="container">
       <h1>Generative Playground</h1>
       <p>Генерация случайной геометрии</p>
     </header>
-    <main>
-      <div class="settings">
-        <label for="color">Выбор цвета фона</label>
-        <input type="color" id="color" />
+    <main class="container">
+      <div class="playground">
+        <canvas id="canvas" width="1000" height="1000"> </canvas>
+        <div class="settings">
+          <label for="color">Выбор цвета фона</label>
+          <input type="color" id="color" />
+        </div>
       </div>
-      <canvas id="canvas" width="1000" height="1000"> </canvas>
     </main>
-    <section>
+    <section class="container">
       <h2>Как это работает</h2>
       <p>Модель калейдоскопа</p>
     </section>
-    <footer>
+    <footer class="container">
       <h3>Максим</h3>
       <a href="https://github.com/Kamballakilla">Мой GitHub</a>
     </footer>

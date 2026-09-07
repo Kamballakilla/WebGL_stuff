@@ -1,0 +1,37 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  line-height: 1.5;
+  color: #3285a8;
+}
+
+.container {
+  width: min(100% - 2rem, 1100px);
+  margin-inline: auto;
+}
+
+.playground {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 1.5rem;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.settings {
+  padding: 1rem;
+}
+
+@media (max-width: 720px) {
+  .playground {
+    grid-template-columns: 1fr;
+  }
+}
