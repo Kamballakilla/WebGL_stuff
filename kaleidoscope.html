@@ -62,22 +62,15 @@
         data.push(Math.random() * (1 - -1) + -1);
       }
 
-      const triangleCenter = [
-        (data[0] + data[3] + data[6]) / 3,
-        (data[1] + data[4] + data[7]) / 3,
-        (data[2] + data[5] + data[8]) / 3,
-      ];
-
       const vertexShaderCode = `
         precision mediump float; 
         attribute vec3 aPosition;
         uniform vec2 uScaleFactor;
-        uniform vec3 uTriangleCenter;
         uniform float uTime;
         varying vec3 vColor;
 
         void main(){
-          float angle = 1.5708;
+          float angle = uTime;
           
           float rotatedX = aPosition.x * cos(angle) - aPosition.y * sin(angle);
           float rotatedY = aPosition.x * sin(angle) + aPosition.y * cos(angle);
@@ -106,7 +99,6 @@
 
       const fragmentShaderCode = `
         precision mediump float; 
-        uniform float uTime;
         varying vec3 vColor;
 
         void main(){
@@ -180,11 +172,7 @@
 
       const scaleLocation = gl.getUniformLocation(program, "uScaleFactor");
       const uTimeLocation = gl.getUniformLocation(program, "uTime");
-      const uTriangleCenterLocation = gl.getUniformLocation(
-        program,
-        "uTriangleCenter",
-      );
-      gl.uniform3f(uTriangleCenterLocation, ...triangleCenter);
+  
       gl.enable(gl.SCISSOR_TEST);
       gl.enable(gl.DEPTH_TEST);
 
