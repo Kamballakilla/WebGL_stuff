@@ -16,13 +16,20 @@
         <canvas id="canvas" width="1000" height="1000"> </canvas>
         <div class="settings">
           <label for="color">Выбор цвета фона</label>
-          <input type="color" id="color" value="#c7c7c7"/>
+          <input type="color" id="color" value="#c7c7c7" />
         </div>
       </div>
     </main>
     <section class="container">
       <h2>Как это работает</h2>
-      <p>Модель калейдоскопа</p>
+      <p>
+        Модель калейдоскопа, где случайным образом генерируются координаты
+        вершин треугольников, а симметрия достигается благодаря использованию
+        коэффициентов <code>uScaleFactor</code> которые отражают геометрию
+        относительно осей, а отображение достигается за счёт рисования в разных
+        частях холста. Цвет фона выбирает пользователь, используя палитру. Цвет
+        треугольников зависит от положения их вершин на холсте.
+      </p>
     </section>
     <footer class="container">
       <h3>Максим</h3>
@@ -47,11 +54,11 @@
         rgbColor = [redNormalized, greenNormalized, blueNormalized, 1.0];
       });
 
-      const triangleQuantity = 270;
+      const coordinateCount = 270;
 
       let data = [];
 
-      for (let i = 0; i < triangleQuantity; i++) {
+      for (let i = 0; i < coordinateCount; i++) {
         data.push(Math.random() * (1 - -1) + -1);
       }
 
@@ -70,16 +77,13 @@
         varying vec3 vColor;
 
         void main(){
-          vec3 newPosition = vec3(aPosition.x * uScaleFactor.x, aPosition.y * uScaleFactor.y, aPosition.z);
-          vec3 newCenter = vec3(uTriangleCenter.x * uScaleFactor.x, uTriangleCenter.y * uScaleFactor.y, uTriangleCenter.z);
-          vec3 localPosition = newPosition - newCenter;
+          float angle = 1.5708;
+          
+          float rotatedX = aPosition.x * cos(angle) - aPosition.y * sin(angle);
+          float rotatedY = aPosition.x * sin(angle) + aPosition.y * cos(angle);
+          vec3 newPosition = vec3(rotatedX * uScaleFactor.x, rotatedY * uScaleFactor.y, aPosition.z);
 
-          // под анимацию 
-          // float rotatedX = localPosition.x * cos(uTime) - localPosition.y * sin(uTime);
-          // float rotatedY = localPosition.x * sin(uTime) + localPosition.y * cos(uTime);
-          // vec3 finalPosition = vec3(rotatedX + newCenter.x, rotatedY + newCenter.y, aPosition.z);
-
-          gl_Position = vec4(localPosition,1.0);
+          gl_Position = vec4(newPosition, 1.0);
 
           float value = sin(
             aPosition.x * 12.3 +
@@ -200,7 +204,7 @@
         gl.viewport(...viewport);
         gl.scissor(...viewport);
         gl.clearColor(...color);
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.uniform2f(scaleLocation, ...scaleFactor);
         render(gl, program, positionBuffer, gl.TRIANGLES, data.length / 3);
       }
