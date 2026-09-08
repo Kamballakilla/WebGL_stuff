@@ -17,6 +17,7 @@
         <div class="settings">
           <label for="color">Выбор цвета фона</label>
           <input type="color" id="color" value="#c7c7c7" />
+          <button id="pauseButton">Пауза</button>
         </div>
       </div>
     </main>
@@ -178,8 +179,13 @@
 
       let angle = 0;
       let speed = 1;
-      let isPaused = true;
+      let isPaused = false;
       let previousTime = null;
+
+      const pauseButton = document.getElementById("pauseButton");
+      pauseButton.addEventListener("click", () => {
+        isPaused = !isPaused
+      });
 
       const loop = (timestamp) => {
         let deltaTime;
