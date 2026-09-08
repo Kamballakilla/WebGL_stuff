@@ -17,7 +17,11 @@
         <div class="settings">
           <label for="color">Выбор цвета фона</label>
           <input type="color" id="color" value="#c7c7c7" />
-          <button id="pauseButton">Пауза</button>
+          <label for="speed">Скорость вращения</label>
+          <input type="range" id="speed" min="0" max="3" step="0.1" value="1" />
+          <span id="speedValue">1 рад/с</span>
+          <button type="button" id="pauseButton">Пауза</button>
+          <button type="button" id="resetButton">Сброс</button>
         </div>
       </div>
     </main>
@@ -43,7 +47,7 @@
         throw new Error("WebGL не поддерживается браузером");
       }
 
-      let rgbColor = [0.7, 0.7, 0.7, 1.0];
+      let rgbColor = [199 / 255, 199 / 255, 199 / 255, 1.0];
 
       const inputColor = document.getElementById("color");
       inputColor.addEventListener("input", (event) => {
@@ -177,14 +181,44 @@
       gl.enable(gl.SCISSOR_TEST);
       gl.enable(gl.DEPTH_TEST);
 
+      const speedInput = document.getElementById("speed");
+      const speedValue = document.getElementById("speedValue");
+
+      speedInput.addEventListener("input", (event) => {
+        speed = Number(event.target.value);
+        speedValue.textContent = `${speed} рад/с`;
+      });
+
       let angle = 0;
       let speed = 1;
       let isPaused = false;
       let previousTime = null;
 
       const pauseButton = document.getElementById("pauseButton");
+
       pauseButton.addEventListener("click", () => {
-        isPaused = !isPaused
+        isPaused = !isPaused;
+
+        if (isPaused) {
+          pauseButton.textContent = "Продолжить";
+        } else {
+          pauseButton.textContent = "Пауза";
+        }
+      });
+
+      const resetButton = document.getElementById("resetButton");
+      resetButton.addEventListener("click", () => {
+        angle = 0;
+        speed = 1;
+
+        isPaused = false;
+        pauseButton.textContent = "Пауза";
+
+        rgbColor = [199 / 255, 199 / 255, 199 / 255, 1.0];
+        inputColor.value = "#c7c7c7";
+
+        speedInput.value = speed;
+        speedValue.textContent = `${speed} рад/с`;
       });
 
       const loop = (timestamp) => {
