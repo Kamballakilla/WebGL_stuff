@@ -66,11 +66,11 @@
         precision mediump float; 
         attribute vec3 aPosition;
         uniform vec2 uScaleFactor;
-        uniform float uTime;
+        uniform float uAngle;
         varying vec3 vColor;
 
         void main(){
-          float angle = uTime;
+          float angle = uAngle;
           
           float rotatedX = aPosition.x * cos(angle) - aPosition.y * sin(angle);
           float rotatedY = aPosition.x * sin(angle) + aPosition.y * cos(angle);
@@ -171,14 +171,33 @@
       }
 
       const scaleLocation = gl.getUniformLocation(program, "uScaleFactor");
-      const uTimeLocation = gl.getUniformLocation(program, "uTime");
-  
+      const uAngleLocation = gl.getUniformLocation(program, "uAngle");
+
       gl.enable(gl.SCISSOR_TEST);
       gl.enable(gl.DEPTH_TEST);
 
-      const loop = () => {
-        const time = performance.now() / 1000;
-        gl.uniform1f(uTimeLocation, time);
+      let angle = 0;
+      let speed = 1;
+      let isPaused = true;
+      let previousTime = null;
+
+      const loop = (timestamp) => {
+        let deltaTime;
+
+        if (previousTime === null) {
+          deltaTime = 0;
+        } else {
+          deltaTime = (timestamp - previousTime) / 1000;
+        }
+
+        deltaTime = Math.min(deltaTime, 0.05);
+        previousTime = timestamp;
+
+        if (!isPaused) {
+          angle += deltaTime * speed;
+        }
+
+        gl.uniform1f(uAngleLocation, angle);
 
         drawQuadrant([0, 0, 500, 500], rgbColor, [1, 1]);
         drawQuadrant([500, 0, 500, 500], rgbColor, [-1, 1]);
@@ -197,7 +216,7 @@
         render(gl, program, positionBuffer, gl.TRIANGLES, data.length / 3);
       }
 
-      loop();
+      requestAnimationFrame(loop);
     </script>
   </body>
 </html>
