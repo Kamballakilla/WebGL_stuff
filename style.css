@@ -28,6 +28,51 @@ canvas {
 
 .settings {
   padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  align-self: start;
+}
+
+.color-group,
+.speed-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.action-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.action-group button {
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+}
+
+.action-group button:hover {
+  background: #3285a8;
+  color: white;
+}
+
+.action-group button:focus-visible,
+input[type="color"]:focus-visible,
+input[type="range"]:focus-visible {
+  outline: 3px solid #3285a8;
+  outline-offset: 3px;
+}
+
+.speed-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 720px) {
