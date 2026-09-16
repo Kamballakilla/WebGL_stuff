@@ -21,9 +21,10 @@ body {
 }
 
 canvas {
+  display: block;
   width: 100%;
   height: auto;
-  display: block;
+  aspect-ratio: 1 / 1;
 }
 
 .settings {
@@ -68,11 +69,22 @@ input[type="range"]:focus-visible {
   outline-offset: 3px;
 }
 
+.color-group,
+.speed-group,
+.count-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
 .speed-header {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+#generateButton {
+  grid-column: 1 / -1;
 }
 
 @media (max-width: 720px) {

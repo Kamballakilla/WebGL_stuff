@@ -13,7 +13,10 @@
     </header>
     <main class="container">
       <div class="playground">
-        <canvas id="canvas" width="1000" height="1000"> </canvas>
+        <div class="canvas-area">
+          <canvas id="canvas" width="1000" height="1000"></canvas>
+          <p id="canvasSize"></p>
+        </div>
         <div class="settings">
           <div class="color-group">
             <label for="color">Выбор цвета фона</label>
@@ -34,9 +37,27 @@
               value="1"
             />
           </div>
+
+          <div class="count-group">
+            <label for="triangleCount">
+              Количество треугольников:
+              <output id="triangleCountValue" for="triangleCount">30</output>
+            </label>
+
+            <input
+              type="range"
+              id="triangleCount"
+              min="3"
+              max="150"
+              step="1"
+              value="30"
+            />
+          </div>
+
           <div class="action-group">
             <button type="button" id="pauseButton">Пауза</button>
             <button type="button" id="resetButton">Сброс</button>
+            <button type="button" id="generateButton">Новая композиция</button>
           </div>
         </div>
       </div>
@@ -58,6 +79,28 @@
     </footer>
     <script>
       const canvas = document.getElementById("canvas");
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+
+        const targetWidth = Math.max(1, Math.round(rect.width * pixelRatio));
+        const targetHeight = Math.max(1, Math.round(rect.height * pixelRatio));
+
+        if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+        }
+
+        const sizeText =
+          `На странице: ${Math.round(rect.width)} × ${Math.round(rect.height)} CSS px. ` +
+          `Буфер: ${canvas.width} × ${canvas.height} px.`;
+
+        if (canvasSize.textContent !== sizeText) {
+          canvasSize.textContent = sizeText;
+        }
+      }
+
       const gl = canvas.getContext("webgl2");
       if (!gl) {
         throw new Error("WebGL не поддерживается браузером");
@@ -75,13 +118,25 @@
         rgbColor = [redNormalized, greenNormalized, blueNormalized, 1.0];
       });
 
-      const coordinateCount = 270;
+      const triangleCountInput = document.getElementById("triangleCount");
+      const triangleCountValue = document.getElementById("triangleCountValue");
 
-      let data = [];
+      triangleCountInput.addEventListener("input", (event) => {
+        triangleCountValue.textContent = event.target.value;
+      });
 
-      for (let i = 0; i < coordinateCount; i++) {
-        data.push(Math.random() * (1 - -1) + -1);
+      function generateGeometry(triangleCount) {
+        const coordinates = [];
+        const coordinateCount = triangleCount * 3 * 3;
+
+        for (let i = 0; i < coordinateCount; i++) {
+          coordinates.push(Math.random() * 2 - 1);
+        }
+
+        return coordinates;
       }
+
+      let data = generateGeometry(30);
 
       const vertexShaderCode = `
         precision mediump float; 
@@ -174,6 +229,16 @@
 
       const positionBuffer = createBuffers(gl, data, gl.STATIC_DRAW);
 
+      const generateButton = document.getElementById("generateButton");
+
+      generateButton.addEventListener("click", () => {
+        const triangleCount = Number(triangleCountInput.value);
+        data = generateGeometry(triangleCount);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+      });
+
       function initBuffers(name, buffer, size, program) {
         const attributeLocation = gl.getAttribLocation(program, name);
         gl.enableVertexAttribArray(attributeLocation);
@@ -238,6 +303,7 @@
       });
 
       const loop = (timestamp) => {
+        resizeCanvas();
         let deltaTime;
 
         if (previousTime === null) {
@@ -255,10 +321,31 @@
 
         gl.uniform1f(uAngleLocation, angle);
 
-        drawQuadrant([0, 0, 500, 500], rgbColor, [1, 1]);
-        drawQuadrant([500, 0, 500, 500], rgbColor, [-1, 1]);
-        drawQuadrant([0, 500, 500, 500], rgbColor, [1, -1]);
-        drawQuadrant([500, 500, 500, 500], rgbColor, [-1, -1]);
+        const leftWidth = Math.floor(canvas.width / 2);
+        const rightWidth = canvas.width - leftWidth;
+
+        const bottomHeight = Math.floor(canvas.height / 2);
+        const topHeight = canvas.height - bottomHeight;
+
+        drawQuadrant([0, 0, leftWidth, bottomHeight], rgbColor, [1, 1]);
+
+        drawQuadrant(
+          [leftWidth, 0, rightWidth, bottomHeight],
+          rgbColor,
+          [-1, 1],
+        );
+
+        drawQuadrant(
+          [0, bottomHeight, leftWidth, topHeight],
+          rgbColor,
+          [1, -1],
+        );
+
+        drawQuadrant(
+          [leftWidth, bottomHeight, rightWidth, topHeight],
+          rgbColor,
+          [-1, -1],
+        );
 
         requestAnimationFrame(loop);
       };
