@@ -79,7 +79,8 @@
     </footer>
     <script>
       const canvas = document.getElementById("canvas");
-
+      const canvasSize = document.getElementById("canvasSize");
+      
       function resizeCanvas() {
         const rect = canvas.getBoundingClientRect();
         const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
