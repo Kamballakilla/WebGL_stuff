@@ -301,6 +301,14 @@
 
         speedInput.value = speed;
         speedValue.textContent = `${speed} рад/с`;
+
+        triangleCountInput.value = "30";
+        triangleCountValue.textContent = "30";
+
+        data = generateGeometry(30);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
       });
 
       const loop = (timestamp) => {
