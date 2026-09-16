@@ -40,7 +40,7 @@
 
           <div class="count-group">
             <label for="triangleCount">
-              Количество треугольников:
+              Треугольников в новой композиции:
               <output id="triangleCountValue" for="triangleCount">30</output>
             </label>
 
@@ -80,7 +80,7 @@
     <script>
       const canvas = document.getElementById("canvas");
       const canvasSize = document.getElementById("canvasSize");
-      
+
       function resizeCanvas() {
         const rect = canvas.getBoundingClientRect();
         const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
