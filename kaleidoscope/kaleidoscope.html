@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <title>Generative Playground</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="container">
+      <h1>Generative Playground</h1>
+      <p>Генерация случайной геометрии</p>
+    </header>
+    <main class="container">
+      <div class="playground">
+        <div class="canvas-area">
+          <canvas id="canvas" width="1000" height="1000"></canvas>
+          <p id="graphicsError" role="alert" hidden></p>
+          <p id="canvasSize"></p>
+        </div>
+        <div class="settings">
+          <div class="preset-group">
+            <label for="preset">Готовый вариант</label>
+
+            <select id="preset">
+              <option value="" selected>Свои настройки</option>
+              <option value="calm">Спокойный</option>
+              <option value="bright">Яркий</option>
+              <option value="dense">Плотный</option>
+            </select>
+
+            <button type="button" id="applyPresetButton">
+              Применить вариант
+            </button>
+          </div>
+          <div class="color-group">
+            <label for="color">Выбор цвета фона</label>
+            <input type="color" id="color" value="#c7c7c7" />
+          </div>
+          <div class="speed-group">
+            <div class="speed-header">
+              <label for="speed">Скорость вращения</label>
+              <span id="speedValue">1 рад/с</span>
+            </div>
+
+            <input
+              type="range"
+              id="speed"
+              min="0"
+              max="3"
+              step="0.1"
+              value="1"
+            />
+          </div>
+          <div class="count-group">
+            <label for="triangleCount">
+              Треугольников в новой композиции:
+              <output id="triangleCountValue" for="triangleCount">30</output>
+            </label>
+
+            <input
+              type="range"
+              id="triangleCount"
+              min="3"
+              max="150"
+              step="1"
+              value="30"
+            />
+          </div>
+          <div class="seed-group">
+            <label for="seed">Код композиции</label>
+
+            <input
+              type="number"
+              id="seed"
+              min="1"
+              max="2147483646"
+              step="1"
+              value="12345"
+              required
+              aria-describedby="seedHint"
+            />
+
+            <small id="seedHint">
+              Одинаковые код и количество треугольников повторяют геометрию.
+            </small>
+          </div>
+
+          <div class="action-group">
+            <button type="button" id="pauseButton">Пауза</button>
+            <button type="button" id="resetButton">Сброс</button>
+            <button type="button" id="generateButton">Новая композиция</button>
+          </div>
+        </div>
+      </div>
+      <section>
+        <h2>Как это работает</h2>
+        <p>
+          Модель калейдоскопа, где случайным образом генерируются координаты
+          вершин треугольников, а симметрия достигается благодаря использованию
+          коэффициентов <code>uScaleFactor</code> которые отражают геометрию
+          относительно осей, а отображение достигается за счёт рисования в
+          разных частях холста. Цвет фона выбирает пользователь, используя
+          палитру. Цвет треугольников зависит от положения их вершин на холсте.
+        </p>
+      </section>
+    </main>
+    <footer class="container">
+      <h3>Максим</h3>
+      <a href="https://github.com/Kamballakilla">Мой GitHub</a>
+    </footer>
+    <script src="./kaleidoscope.js"></script>
+  </body>
+</html>

@@ -34,19 +34,13 @@ canvas {
   align-self: start;
 }
 
-.color-group,
-.speed-group {
-  display: grid;
-  gap: 0.5rem;
-}
-
 .action-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
 }
 
-.action-group button {
+.settings button {
   min-height: 44px;
   padding: 0.6rem 1rem;
   font: inherit;
@@ -57,14 +51,14 @@ canvas {
   color: inherit;
 }
 
-.action-group button:hover {
+.settings button:hover {
   background: #3285a8;
   color: white;
 }
 
-.action-group button:focus-visible,
-input[type="color"]:focus-visible,
-input[type="range"]:focus-visible {
+.settings button:focus-visible,
+.settings input:focus-visible,
+.settings select:focus-visible {
   outline: 3px solid #3285a8;
   outline-offset: 3px;
 }
@@ -73,11 +67,10 @@ input[type="range"]:focus-visible {
 .speed-group,
 .count-group,
 .seed-group,
-.preset-group{
+.preset-group {
   display: grid;
   gap: 0.5rem;
 }
-
 
 .speed-header {
   display: flex;
@@ -88,6 +81,10 @@ input[type="range"]:focus-visible {
 
 #generateButton {
   grid-column: 1 / -1;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 @media (max-width: 720px) {
