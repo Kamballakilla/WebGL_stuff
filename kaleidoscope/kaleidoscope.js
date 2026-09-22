@@ -234,10 +234,12 @@ speedInput.addEventListener("input", (event) => {
 
 let angle = 0;
 let speed = 1;
-let isPaused = false;
+const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+let isPaused = motionPreference.matches;
 let previousTime = null;
 
 const pauseButton = document.getElementById("pauseButton");
+pauseButton.textContent = isPaused ? "Продолжить" : "Пауза";
 
 pauseButton.addEventListener("click", () => {
   isPaused = !isPaused;
@@ -319,8 +321,8 @@ resetButton.addEventListener("click", () => {
   angle = 0;
   speed = 1;
 
-  isPaused = false;
-  pauseButton.textContent = "Пауза";
+  isPaused = motionPreference.matches;
+  pauseButton.textContent = isPaused ? "Продолжить" : "Пауза";
 
   rgbColor = [199 / 255, 199 / 255, 199 / 255, 1.0];
   inputColor.value = "#c7c7c7";
