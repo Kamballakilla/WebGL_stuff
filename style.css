@@ -71,10 +71,13 @@ input[type="range"]:focus-visible {
 
 .color-group,
 .speed-group,
-.count-group {
+.count-group,
+.seed-group,
+.preset-group{
   display: grid;
   gap: 0.5rem;
 }
+
 
 .speed-header {
   display: flex;
